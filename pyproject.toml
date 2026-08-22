@@ -6,6 +6,7 @@ build-backend = "hatchling.build"
 name = "minitorch"
 version = "0.5"
 
+
 [tool.pyright]
 include = ["**/minitorch"]
 exclude = [
@@ -16,9 +17,14 @@ exclude = [
     "**/mt_diagrams",
     "**/.*",
     "*chainrule.py*",
+    "**/.venv",
+    "**/node_modules",
+    "**/__pycache__"
 ]
+
 venvPath = "."
 venv = ".venv"
+
 reportUnknownMemberType = "none"
 reportUnknownParameterType = "none"
 reportUnknownArgumentType = "none"
@@ -60,8 +66,9 @@ markers = [
     "task4_3",
     "task4_4",
 ]
-[tool.ruff]
 
+
+[tool.ruff]
 exclude = [
     ".git",
     "__pycache__",
@@ -74,8 +81,17 @@ exclude = [
     "**/docs/**/*",
 ]
 
+
+[tool.ruff.lint]
+select = [
+    "D",
+    "E",
+    "F",
+    "N",
+    "ANN",
+]
+
 ignore = [
-    "ANN101",
     "ANN401",
     "N801",
     "E203",
@@ -85,6 +101,7 @@ ignore = [
     "N803",
     "N802",
     "N806",
+    "D203",
     "D400",
     "D401",
     "D105",
@@ -96,56 +113,12 @@ ignore = [
     "D107",
     "D213",
     "ANN204",
-    "ANN102",
 ]
-select = ["D", "E", "F", "N", "ANN"]
-fixable = [
-    "A",
-    "B",
-    "C",
-    "D",
-    "E",
-    "F",
-    "G",
-    "I",
-    "N",
-    "Q",
-    "S",
-    "T",
-    "W",
-    "ANN",
-    "ARG",
-    "BLE",
-    "COM",
-    "DJ",
-    "DTZ",
-    "EM",
-    "ERA",
-    "EXE",
-    "FBT",
-    "ICN",
-    "INP",
-    "ISC",
-    "NPY",
-    "PD",
-    "PGH",
-    "PIE",
-    "PL",
-    "PT",
-    "PTH",
-    "PYI",
-    "RET",
-    "RSE",
-    "RUF",
-    "SIM",
-    "SLF",
-    "TCH",
-    "TID",
-    "TRY",
-    "UP",
-    "YTT",
-]
+
+fixable = ["ALL"]
 unfixable = []
 
-[tool.ruff.extend-per-file-ignores]
+
+[tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["D"]
+"minitorch/operators.py" = ["N816"]

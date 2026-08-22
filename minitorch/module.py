@@ -19,27 +19,34 @@ class Module:
     _parameters: Dict[str, Parameter]
     training: bool
 
-    def __init__(self) -> None:
+    def __init__(self: Module) -> None:
         self._modules = {}
         self._parameters = {}
         self.training = True
 
-    def modules(self) -> Sequence[Module]:
+    def modules(self: Module) -> Sequence[Module]:
         """Return the direct child modules of this module."""
         m: Dict[str, Module] = self.__dict__["_modules"]
         return list(m.values())
 
-    def train(self) -> None:
+    def train(self: Module) -> None:
         """Set the mode of this module and all descendent modules to `train`."""
         # TODO: Implement for Task 0.4.
-        raise NotImplementedError("Need to implement for Task 0.4")
+        for value in self._modules.values():
+            value.train()
+        self.training = True
+        return None
 
-    def eval(self) -> None:
+    def eval(self: Module) -> None:
         """Set the mode of this module and all descendent modules to `eval`."""
         # TODO: Implement for Task 0.4.
-        raise NotImplementedError("Need to implement for Task 0.4")
+        for value in self._modules.values():
+            value.eval()
+        self.training = False
 
-    def named_parameters(self) -> Sequence[Tuple[str, Parameter]]:
+        return None
+
+    def named_parameters(self: Module) -> Sequence[Tuple[str, Parameter]]:
         """Collect all the parameters of this module and its descendents.
 
         Returns
@@ -47,15 +54,29 @@ class Module:
             The name and `Parameter` of each ancestor parameter.
 
         """
-        # TODO: Implement for Task 0.4.
-        raise NotImplementedError("Need to implement for Task 0.4")
+        collection = []
 
-    def parameters(self) -> Sequence[Parameter]:
+        for module_name, module in self._modules.items():
+            for parameter_name, value in module.named_parameters():
+                ref = f"{module_name}.{parameter_name}"
+                collection.append((ref, value))
+
+        collection.extend(self._parameters.items())
+
+        return collection
+
+    def parameters(self: Module) -> Sequence[Parameter]:
         """Enumerate over all the parameters of this module and its descendents."""
-        # TODO: Implement for Task 0.4.
-        raise NotImplementedError("Need to implement for Task 0.4")
+        collection = []
 
-    def add_parameter(self, k: str, v: Any) -> Parameter:
+        for module in self._modules.values():
+            collection.extend(module.parameters())
+
+        collection.extend(self._parameters.values())
+
+        return collection
+
+    def add_parameter(self: Module, k: str, v: Any) -> Parameter:
         """Manually add a parameter. Useful helper for scalar parameters.
 
         Args:
@@ -72,7 +93,7 @@ class Module:
         self.__dict__["_parameters"][k] = val
         return val
 
-    def __setattr__(self, key: str, val: Parameter) -> None:
+    def __setattr__(self: Module, key: str, val: Parameter) -> None:
         if isinstance(val, Parameter):
             self.__dict__["_parameters"][key] = val
         elif isinstance(val, Module):
@@ -80,7 +101,7 @@ class Module:
         else:
             super().__setattr__(key, val)
 
-    def __getattr__(self, key: str) -> Any:
+    def __getattr__(self: Module, key: str) -> Any:
         if key in self.__dict__["_parameters"]:
             return self.__dict__["_parameters"][key]
 
@@ -88,10 +109,11 @@ class Module:
             return self.__dict__["_modules"][key]
         return None
 
-    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+    def __call__(self: Module, *args: Any, **kwargs: Any) -> Any:
+        """Call the module's forward method."""
         return self.forward(*args, **kwargs)
 
-    def __repr__(self) -> str:
+    def __repr__(self: Module) -> str:
         def _addindent(s_: str, numSpaces: int) -> str:
             s2 = s_.split("\n")
             if len(s2) == 1:
@@ -126,7 +148,7 @@ class Parameter:
     any value for testing.
     """
 
-    def __init__(self, x: Any, name: Optional[str] = None) -> None:
+    def __init__(self: Parameter, x: Any, name: Optional[str] = None) -> None:
         self.value = x
         self.name = name
         if hasattr(x, "requires_grad_"):
@@ -134,7 +156,7 @@ class Parameter:
             if self.name:
                 self.value.name = self.name
 
-    def update(self, x: Any) -> None:
+    def update(self: Parameter, x: Any) -> None:
         """Update the parameter value."""
         self.value = x
         if hasattr(x, "requires_grad_"):
@@ -142,8 +164,8 @@ class Parameter:
             if self.name:
                 self.value.name = self.name
 
-    def __repr__(self) -> str:
+    def __repr__(self: Parameter) -> str:
         return repr(self.value)
 
-    def __str__(self) -> str:
+    def __str__(self: Parameter) -> str:
         return str(self.value)
