@@ -41,7 +41,7 @@ class Module:
         """Set the mode of this module and all descendent modules to `eval`."""
         # TODO: Implement for Task 0.4.
         for value in self._modules.values():
-            value.train()
+            value.eval()
         self.training = False
 
         return None
@@ -70,8 +70,7 @@ class Module:
         collection = []
 
         for module in self._modules.values():
-            for parameter in module._parameters.values():
-                collection.append(parameter)
+            collection.extend(module.parameters())
 
         collection.extend(self._parameters.values())
 
